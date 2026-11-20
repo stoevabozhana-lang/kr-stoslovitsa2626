@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>КРЪСТОВИЦА // АРЕНА</title>
+  <style>
+    :root {
+      --bg: #080a10;
+      --panel: #111625;
+      --panel-2: #171f34;
+      --accent: #7c5cff;
+      --accent-2: #00d2ff;
+      --ok: #19c37d;
+      --bad: #ff4d6d;
+      --hint: #ffb703;
+      --text: #f4f7ff;
+      --muted: #98a5c7;
+      --cell-bg: #1b233a;
+      --cell-active: #342868;
+      --cell-word: #222e4c;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 50% -10%, #1a2242 0%, var(--bg) 62%);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .topbar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      font-size: 14px;
+      background: linear-gradient(90deg, #ffffff, var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subbrand {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 6px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 8px 11px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text);
+      background: var(--panel-2);
+      transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.active-tab,
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #5736e8);
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(124, 92, 255, 0.35);
+    }
+
+    button.hint-btn {
+      border-color: rgba(255, 183, 3, 0.45);
+      color: #ffd166;
+    }
+
+    .stats-bar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .stat-box {
+      background: var(--panel-2);
+      border-radius: 10px;
+      padding: 6px 4px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      font-size: 13px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .mp-panel {
+      background: var(--panel);
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mp-panel.visible {
+      display: flex;
+    }
+
+    .mp-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mp-input {
+      flex: 1;
+      min-width: 120px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .mp-score {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      background: var(--panel-2);
+      padding: 8px 10px;
+      border-radius: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .clue-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .clue-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      gap: 8px;
+    }
+
+    .clue-text {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .board-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .grid {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1 / 1;
+    }
+
+    .cell {
+      position: relative;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: clamp(13px, 3.8vw, 20px);
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .cell.block {
+      background: rgba(8, 10, 16, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .cell.open {
+      background: var(--cell-bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .cell.word-highlight {
+      background: var(--cell-word);
+      border-color: rgba(0, 210, 255, 0.35);
+    }
+
+    .cell.active {
+      background: var(--cell-active);
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.25);
+    }
+
+    .cell.correct {
+      background: rgba(25, 195, 125, 0.22);
+      border-color: var(--ok);
+      color: #8ef5c6;
+    }
+
+    .cell.wrong {
+      background: rgba(255, 77, 109, 0.18);
+      border-color: var(--bad);
+      color: #ff9cb0;
+    }
+
+    .cell .num {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .status-banner {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      min-height: 18px;
+      color: var(--ok);
+    }
+
+    .status-banner.error {
+      color: var(--bad);
+    }
+
+    .status-banner.info {
+      color: var(--hint);
+    }
+
+    .keyboard {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 9px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .key {
+      flex: 1;
+      max-width: 38px;
+      height: 39px;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 9px;
+      background: var(--panel-2);
+    }
+
+    .key.wide {
+      max-width: 62px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div>
+        <div class="brand">КРЪСТОВИЦА // АРЕНА</div>
+        <div id="poolInfo" class="subbrand">Реални думи • Без повторения • Авто-ъпдейт</div>
+      </div>
+      <div class="mode-tabs">
+        <button id="singleTab" class="active-tab" type="button">Сингълплейър</button>
+        <button id="multiTab" type="button">Мултиплейър</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="stat-label">Ниво</div>
+        <div id="levelStat" class="stat-val">1</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Точки</div>
+        <div id="scoreStat" class="stat-val">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Остават думи</div>
+        <div id="remWordsStat" class="stat-val">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Време</div>
+        <div id="timerStat" class="stat-val">00:00</div>
+      </div>
+    </div>
+
+    <div id="mpPanel" class="mp-panel">
+      <div class="mp-row">
+        <input id="playerNameInput" class="mp-input" type="text" maxlength="16" placeholder="Твоето име" />
+        <input id="roomCodeInput" class="mp-input" type="text" maxlength="10" placeholder="Код на стая" />
+        <button id="createRoomBtn" class="primary" type="button">Нова стая</button>
+        <button id="joinRoomBtn" type="button">Влез</button>
+      </div>
+      <div class="mp-score">
+        <span id="mpRoomStatus">Режим Дуел: създай или влез в стая</span>
+        <span id="mpOpponentScore">Съперник: —</span>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button id="dirBtn" type="button">Посока: →</button>
+      <button id="hintBtn" class="hint-btn" type="button">ПОДСКАЗКА (-15 т.)</button>
+      <button id="resetUsedBtn" type="button">Нов цикъл думи</button>
+      <button id="nextLevelBtn" class="primary" type="button">Следващо ниво →</button>
+    </div>
+
+    <div class="clue-box">
+      <div class="clue-meta">
+        <span id="wordLabel">Дума</span>
+        <span id="progressLabel">0 / 0</span>
+      </div>
+      <div id="clueText" class="clue-text">Зареждане...</div>
+    </div>
+
+    <div class="board-wrap">
+      <div id="grid" class="grid"></div>
+    </div>
+
+    <div id="statusBanner" class="status-banner"></div>
+
+    <div id="keyboard" class="keyboard"></div>
+  </div>
+
+  <script>
+    // По желание постави URL към JSON масив [{ "answer": "ДУМА", "clue": "Подсказка" }]
+    // за постоянни външни ъпдейти (например "./words.json" в GitHub репозиторито)
+    const EXTERNAL_WORDS_URL = "./words.json";
+
+    // Реални думи и дефиниции в стил български кръстословици
+    const BUILTIN_WORDS = [
+      { answer: "МАЯК", clue: "Фар край бряг или корабоплавателен път" },
+      { answer: "НЕУТРАЛИТЕТ", clue: "Ненамеса в спор или конфликт" },
+      { answer: "ГРАНИЧАР", clue: "Войник, който пази границата" },
+      { answer: "КОМПАС", clue: "Прибор за определяне на посоките на света" },
+      { answer: "АРХИПЕЛАГ", clue: "Група острови, разположени близо един до друг" },
+      { answer: "КАРТА", clue: "Умалено изображение на земната повърхност" },
+      { answer: "ХРОНИКА", clue: "Последователно описание на събития във времето" },
+      { answer: "ЛЕТОПИС", clue: "Историческо повествование по години" },
+      { answer: "АКАДЕМИЯ", clue: "Висше научно или художествено учреждение" },
+      { answer: "БИБЛИОТЕКА", clue: "Сбирка от книги и читалня" },
+      { answer: "ТЕАТЪР", clue: "Сценично изкуство и сграда за представления" },
+      { answer: "АКТЬОР", clue: "Изпълнител на роли в театър или кино" },
+      { answer: "РЕЖИСЬОР", clue: "Творец, ръководещ постановка или филм" },
+      { answer: "ПОЕЗИЯ", clue: "Художествена реч в стихове" },
+      { answer: "РОМАН", clue: "Голямо прозаично произведение" },
+      { answer: "МЕЛОДИЯ", clue: "Последователност от музикални тонове" },
+      { answer: "РИТЪМ", clue: "Равномерно редуване на акценти и паузи" },
+      { answer: "СИМФОНИЯ", clue: "Голямо музикално произведение за оркестър" },
+      { answer: "ХАРМОНИЯ", clue: "Съгласуваност и съзвучие" },
+      { answer: "АСТРОНОМ", clue: "Учен, изследващ небесните тела" },
+      { answer: "КОМЕТА", clue: "Небесно тяло с опашка от газ и прах" },
+      { answer: "ОРБИТА", clue: "Път на движение на небесно тяло или спътник" },
+      { answer: "ЕКВАТОР", clue: "Въображаема линия, деляща Земята на две полукълба" },
+      { answer: "МЕРИДИАН", clue: "Линия от полюс до полюс върху глобус или карта" },
+      { answer: "ВУЛКАН", clue: "Отвор в земната кора, изригващ лава и пепел" },
+      { answer: "КРАТЕР", clue: "Чашовидна вдлъбнатина на връх на вулкан" },
+      { answer: "ДОЛИНА", clue: "Понижена част от релефа между възвишения" },
+      { answer: "ПОЛЯНА", clue: "Открито тревисто пространство сред гора" },
+      { answer: "ИЗВОР", clue: "Място, откъдето подземна вода излиза навън" },
+      { answer: "УСТИЕ", clue: "Място, където река се влива в море или друга река" },
+      { answer: "ЗАЛИВ", clue: "Част от море или езеро, вдаваща се в сушата" },
+      { answer: "ПОЛУОСТРОВ", clue: "Част от суша, заобиколена от три страни с вода" },
+      { answer: "КЛИМАТ", clue: "Многогодишният режим на времето в даден район" },
+      { answer: "СТИХИЯ", clue: "Мощна природна сила" },
+      { answer: "БУРЯ", clue: "Силен вятър с гръмотевици и валеж" },
+      { answer: "МЪГЛА", clue: "Скупчване на дребни водни капчици при земята" },
+      { answer: "СКРЕЖ", clue: "Леден налеп по клони и предмети при студ" },
+      { answer: "ЗЕНИТ", clue: "Най-високата точка на небесната сфера над наблюдателя" },
+      { answer: "ХОРИЗОНТ", clue: "Линията, където небето изглежда че се допира до земята" },
+      { answer: "ПАНОРАМА", clue: "Широк обглед на околността" },
+      { answer: "МОНУМЕНТ", clue: "Величествен паметник" },
+      { answer: "БАРЕЛЕФ", clue: "Изпъкнало скулптурно изображение върху плоскост" },
+      { answer: "ГАЛЕРИЯ", clue: "Изложбена зала за произведения на изкуството" },
+      { answer: "ЕКСПОНАТ", clue: "Предмет, изложен в музей или изложба" },
+      { answer: "АРХИВ", clue: "Учреждение или хранилище за стари документи" },
+      { answer: "РЪКОПИС", clue: "Текст, написан на ръка" },
+      { answer: "АВТОГРАФ", clue: "Собственоръчен подпис или бележка на автор" },
+      { answer: "ЕПИГРАМ", clue: "Кратка сатирична поанта или стихотворение" },
+      { answer: "МЕТАФОРА", clue: "Преносно употребяване на дума или израз" },
+      { answer: "СИНОНИМ", clue: "Дума със сходно или близко значение" },
+      { answer: "АНТОНИМ", clue: "Дума с противоположно значение" },
+      { answer: "ДИАЛЕКТ", clue: "Местен говор в рамките на общ език" },
+      { answer: "ГРАМАТИКА", clue: "Строй на езика и наука за него" },
+      { answer: "СИНТАКСИС", clue: "Правила за свързване на думите в изречение" },
+      { answer: "ПУНКТУАЦИЯ", clue: "Система от препинателни знаци" },
+      { answer: "РЕЧНИК", clue: "Справочник с думи, подредени обикновено по азбучен ред" },
+      { answer: "ЕНЦИКЛОПЕДИЯ", clue: "Систематизиран свод от знания по различни области" },
+      { answer: "ФАКУЛТЕТ", clue: "Основно учебно-научно звено във висше училище" },
+      { answer: "КАТЕДРА", clue: "Звено във факултет или висока поставка за лектор" },
+      { answer: "СЕМИНАР", clue: "Учебни занятия за обсъждане на теми и доклади" },
+      { answer: "ДИПЛОМА", clue: "Официален документ за завършено образование или степен" },
+      { answer: "ПАТЕНТ", clue: "Документ за изключително право върху изобретение" },
+      { answer: "ЛАБОРАТОРИЯ", clue: "Помещение, оборудвано за опити и изследвания" },
+      { answer: "ЕКСПЕРИМЕНТ", clue: "Научен опит за проверка на хипотеза" },
+      { answer: "ТЕОРИЯ", clue: "Обобщена система от научни знания и принципи" },
+      { answer: "ХИПОТЕЗА", clue: "Предположение, което предстои да бъде проверено" },
+      { answer: "ФАКТ", clue: "Действително събитие или достоверно положение" },
+      { answer: "АНАЛИЗ", clue: "Разчленяване и изследване на съставни части" },
+      { answer: "СИНТЕЗ", clue: "Обединяване на части или идеи в цяло" },
+      { answer: "ЛОГИКА", clue: "Закономерност на правилното мислене" },
+      { answer: "АРГУМЕНТ", clue: "Довод в подкрепа на твърдение" },
+      { answer: "ДИСКУСИЯ", clue: "Публичен спор или обсъждане на въпрос" },
+      { answer: "КОНСЕНСУС", clue: "Общо съгласие по обсъждан въпрос" },
+      { answer: "ИНИЦИАТИВА", clue: "Почин или предприемчивост" },
+      { answer: "СТРАТЕГИЯ", clue: "Общ план за постигане на дългосрочна цел" },
+      { answer: "ТАКТИКА", clue: "Начин и похвати за действие в конкретна ситуация" },
+      { answer: "РЕСУРС", clue: "Запас или средство, което може да се използва" },
+      { answer: "ИНВЕСТИЦИЯ", clue: "Влагане на средства с цел бъдеща печалба или полза" },
+      { answer: "БЮДЖЕТ", clue: "План за приходи и разходи за определен период" },
+      { answer: "ПАЗАР", clue: "Място или система за размяна и търговия" }
+    ];
+
+    const STORAGE_USED_KEY = "kristoslovitsa_used_words_v1";
+
+    const KB_ROWS = [
+      ["Я", "В", "Е", "Р", "Т", "Ъ", "У", "И", "О", "П", "Ч"],
+      ["А", "С", "Д", "Ф", "Г", "Х", "Й", "К", "Л", "Ш", "Щ"],
+      ["З", "Ь", "Ц", "Ж", "Б", "Н", "М", "Ю", "⌫"]
+    ];
+
+    let wordPool = [...BUILTIN_WORDS];
+    let usedWords = new Set(loadUsedWordsFromStorage());
+
+    let currentLevel = 1;
+    let score = 0;
+    let secondsElapsed = 0;
+    let levelCompleted = false;
+    let roomCode = "";
+
+    let puzzle = null;
+    let gridData = [];
+    let selected = { r: 0, c: 0 };
+    let dir = "H";
+
+    const poolInfo = document.getElementById("poolInfo");
+    const singleTab = document.getElementById("singleTab");
+    const multiTab = document.getElementById("multiTab");
+    const mpPanel = document.getElementById("mpPanel");
+    const playerNameInput = document.getElementById("playerNameInput");
+    const roomCodeInput = document.getElementById("roomCodeInput");
+    const createRoomBtn = document.getElementById("createRoomBtn");
+    const joinRoomBtn = document.getElementById("joinRoomBtn");
+    const mpRoomStatus = document.getElementById("mpRoomStatus");
+    const mpOpponentScore = document.getElementById("mpOpponentScore");
+
+    const levelStat = document.getElementById("levelStat");
+    const scoreStat = document.getElementById("scoreStat");
+    const remWordsStat = document.getElementById("remWordsStat");
+    const timerStat = document.getElementById("timerStat");
+
+    const dirBtn = document.getElementById("dirBtn");
+    const hintBtn = document.getElementById("hintBtn");
+    const resetUsedBtn = document.getElementById("resetUsedBtn");
+    const nextLevelBtn = document.getElementById("nextLevelBtn");
+
+    const wordLabelEl = document.getElementById("wordLabel");
+    const progressEl = document.getElementById("progressLabel");
+    const clueEl = document.getElementById("clueText");
+    const gridEl = document.getElementById("grid");
+    const statusEl = document.getElementById("statusBanner");
+    const kbEl = document.getElementById("keyboard");
+
+    function loadUsedWordsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_USED_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveUsedWordsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_USED_KEY, JSON.stringify([...usedWords]));
+      } catch (_) {}
+    }
+
+    function normalizeWordEntry(item) {
+      if (!item || typeof item.answer !== "string" || typeof item.clue !== "string") return null;
+      const clean = item.answer.trim().toUpperCase().replace(/[^А-Я]/g, "");
+      if (clean.length < 3 || clean.length > 12) return null;
+      return { answer: clean, clue: item.clue.trim() };
+    }
+
+    async function fetchExternalUpdates() {
+      if (!EXTERNAL_WORDS_URL) return;
+      try {
+        const res = await fetch(`${EXTERNAL_WORDS_URL}?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!Array.isArray(data)) return;
+
+        const existingSet = new Set(wordPool.map((w) => w.answer));
+        let added = 0;
+        for (const rawItem of data) {
+          const norm = normalizeWordEntry(rawItem);
+          if (norm && !existingSet.has(norm.answer)) {
+            wordPool.push(norm);
+            existingSet.add(norm.answer);
+            added++;
+          }
+        }
+        if (added > 0) {
+          poolInfo.textContent = `Речник: ${wordPool.length} думи (+${added} нови)`;
+          updateStats();
+        }
+      } catch (_) {
+        // При липса на външен JSON файл играта продължава без проблем с вградения речник
+      }
+    }
+
+    function setBanner(msg, type = "") {
+      statusEl.className = type ? `status-banner ${type}` : "status-banner";
+      statusEl.textContent = msg;
+    }
+
+    window.ad
